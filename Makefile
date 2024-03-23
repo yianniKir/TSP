@@ -1,5 +1,5 @@
 
-APP_NAME = test
+APP_NAME = main.out
 BUILD_DIR = /Users/yianniKir/Desktop/TSP
 APP_DEFINES:=
 APP_INCLUDES:= -I./src/vendors/GLFW -framework Cocoa -framework OpenGL -framework IOKit 
