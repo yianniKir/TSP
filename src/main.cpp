@@ -127,9 +127,13 @@ int main()
     
     //Declare some general points
     Point points[] = {
-            Point('A', glm::vec2(0.0f, 0.0f)),
-            Point('B', glm::vec2(100.0f, 100.0f)),
-            Point('C', glm::vec2(-100.0f, 100.0f))
+        Point('A', glm::vec2(78.0f,  -481.0f)),
+        Point('B', glm::vec2(744.0f,  -150.0f)),
+        Point('C', glm::vec2(-279.0f,  -110.0f)),
+        Point('D', glm::vec2(587.0f,  -700.0f)),
+        Point('E', glm::vec2(239.0f,  -250.0f)),
+        Point('F', glm::vec2(-426.0f,  200.0f)),
+        Point('G', glm::vec2(565.0f,  231.0f)),
     };
     const int numPoints = sizeof(points) / sizeof(points[0]);
     for(int i = 0; i < numPoints; i++){
@@ -138,10 +142,27 @@ int main()
 
     //Declare lines
     std::string lineNames[] = {
-            "AB",
-            "AC",
-            "BC"
-         
+        "AB",
+        "AC",
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "BC",
+        "BD",
+        "BE",
+        "BF",
+        "BG",
+        "CD",
+        "CE",
+        "CF",
+        "CG",
+        "DE",
+        "DF",
+        "DG",
+        "EF",
+        "EG",
+        "FG",
     };
     
     const int numOfLines = sizeof(lineNames) / sizeof(lineNames[0]);

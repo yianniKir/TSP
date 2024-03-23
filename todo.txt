@@ -1,0 +1,5 @@
+TODO
+
+1. Make cpp program read from generated python scripts to fill arrays automatically
+2. Maybe add some more points
+3. Be able to specify line colors (change class?)
