@@ -211,6 +211,7 @@ int main()
         Point('G', glm::vec2(565.0f,  231.0f)),
     };*/
 
+    //Load points
     const int numPoints = countLines("src/codeGens/points.txt");
     Point points[numPoints];
     if(loadPointNames(points, "src/codeGens/points.txt") == -1){
@@ -221,6 +222,7 @@ int main()
         points[i].normalizePosition();
     }
 
+    //Load lines
     const int numOfLines = countLines("src/codeGens/lines.txt");
     std::string lineNames[numOfLines];
     if(loadLineNames(lineNames, "src/codeGens/lines.txt") == -1){

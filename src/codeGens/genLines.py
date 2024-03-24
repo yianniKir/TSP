@@ -13,11 +13,12 @@ def write_line_names_to_file(line_names, output_file):
             file.write(line_name + ',\n')
 
 def main():
-    num_points = 7  # Number of points
+    input_file = "points.txt"
+    num_points = sum(1 for _ in open(input_file))
     line_names = generate_line_names(num_points)
     output_file = 'lines.txt'
     write_line_names_to_file(line_names, output_file)
-    print(f"Generated line names are written to {output_file}")
+    print(f"Generated lines for {num_points} points, written to {output_file}")
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,7 @@ def main():
             txtfile.write(point_data)
             point_index += 1
 
-    print(f"Generated points are written to {output_file}")
+    print(f"Generated {point_index} points, written to {output_file}")
 
 if __name__ == "__main__":
     main()
