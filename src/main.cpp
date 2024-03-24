@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <cmath>
 
+#include <algorithm>
+
 #include <sstream>
 #include <iostream>
 
@@ -178,17 +180,27 @@ int loadPointNames(Point points[], std::string path){
     fin.close();
 }
 
-void setLineColor(std::string lineName, glm::vec3 color, const int numLines, Line lines[]){
-    for(int i = 0; i < numLines; i++){
+bool compareStrings(const std::string& str1, const std::string& str2) {
+    std::string sortedStr1 = str1;
+    std::string sortedStr2 = str2;
+    // Sort characters of both strings
+    std::sort(sortedStr1.begin(), sortedStr1.end());
+    std::sort(sortedStr2.begin(), sortedStr2.end());
+
+    return sortedStr1 == sortedStr2;
+}
+
+void setLineColor(std::string lineName, glm::vec3 color, const int numLines, Line lines[]) {
+    for(int i = 0; i < numLines; i++) {
         std::string linesLineName(lines[i].getName());
-        if(strcmp(lineName.c_str(), linesLineName.c_str()) == 0){
+
+        if(compareStrings(lineName, linesLineName)) {
             lines[i].color = color;
-            //std::cout << lines[i].color.x << "\t"<<lines[i].color.y<< "\t" << lines[i].color.z<< "\t"<<  "\n";
             return;
         }
     }
-    return;
 }
+
 
 int main()
 {
