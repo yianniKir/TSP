@@ -9,6 +9,9 @@
 #include <iostream>
 #include <string>
 
+#include <unistd.h>
+#include <cmath>
+
 #include <sstream>
 #include <iostream>
 
@@ -18,6 +21,8 @@ void processInput(GLFWwindow *window);
 const uint SCRWIDTH = 800;
 const uint SCRHEIGHT = 800;
 const float PI = 3.14159265359f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 class Square {
     public: 
@@ -62,13 +67,17 @@ private:
 
 class Line {
 public:
+
+    glm::vec3 color;
+
     Line() {}
 
-    Line(std::string name, const Point& start, const Point& end) : name(name), start(start), end(end) {}
+    Line(std::string name, const Point& start, const Point& end, glm::vec3 color) : name(name), start(start), end(end), color(color){}
 
     Point getStart() const { return start; }
     Point getEnd() const { return end; }
     std::string getName() const { return name; }
+    
     void debug(){
         std::cout << getName() << ": (" << getStart().getPosition().x
         << ','
@@ -100,7 +109,7 @@ const int countLines(const std::string path) {
     std::ifstream fin;
     fin.open(path);
     if (!fin) {
-        std::cerr << "ERROR: INVALID PTH" << path << std::endl;
+        std::cerr << "ERROR: INVALID PATH" << path << std::endl;
         return -1;
     }
 
@@ -169,6 +178,18 @@ int loadPointNames(Point points[], std::string path){
     fin.close();
 }
 
+void setLineColor(std::string lineName, glm::vec3 color, const int numLines, Line lines[]){
+    for(int i = 0; i < numLines; i++){
+        std::string linesLineName(lines[i].getName());
+        if(strcmp(lineName.c_str(), linesLineName.c_str()) == 0){
+            lines[i].color = color;
+            //std::cout << lines[i].color.x << "\t"<<lines[i].color.y<< "\t" << lines[i].color.z<< "\t"<<  "\n";
+            return;
+        }
+    }
+    return;
+}
+
 int main()
 {
     glfwInit();
@@ -217,11 +238,9 @@ int main()
     if(loadPointNames(points, "src/codeGens/points.txt") == -1){
         return -1;
     }
-
     for(int i = 0; i < numPoints; i++){
         points[i].normalizePosition();
     }
-
     //Load lines
     const int numOfLines = countLines("src/codeGens/lines.txt");
     std::string lineNames[numOfLines];
@@ -236,7 +255,7 @@ int main()
         Point startPoint = FindInPointArr(lineNames[i].c_str()[0], points, numPoints);
         Point endPoint = FindInPointArr(lineNames[i].c_str()[1], points, numPoints);
   
-        lines[i] = Line(lineNames[i], startPoint, endPoint);
+        lines[i] = Line(lineNames[i], startPoint, endPoint, glm::vec3(1.0f, 0.0f, 0.0f));
         //lines[i].debug();
     }
 
@@ -268,11 +287,13 @@ int main()
     glBindVertexArray(0);
 
     //Points for Display
-    const int numSquareVertices = 12* numPoints;
+    const int numPerVertex = 12;
+    const int numSquareVertices = numPerVertex* numPoints;
+    
     float squareVertices[numSquareVertices];
 
-    for(int i = 0; i < numSquareVertices; i = i + 12){
-        int idx = std::floor(i/(12));
+    for(int i = 0; i < numSquareVertices; i = i + numPerVertex){
+        int idx = std::floor(i/(numPerVertex));
         Square dummy = Square(points[idx].getPosition().x,points[idx].getPosition().y);
 
         //Arr format upright, upleft, botleft, botright (x,y of course)
@@ -304,37 +325,57 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
-    
+
+
+
+    int tmp = 0;
     //Render loop
     while(!glfwWindowShouldClose(window))
     {
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         //Input
         processInput(window);
         // Clear the screen
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        // Use our shader program
-        
-        // Draw the line
-        shader.setVec3("color",1.0f,0.0f,0.0f);
-        glBindVertexArray(linesArray);
-        glDrawArrays(GL_LINES, 0, numVerticesElements);
 
+
+        shader.use();
+        setLineColor(lineNames[tmp], glm::vec3(0.0f,1.0f,0.0f), numOfLines, lines);
+        // Draw the lines
+        glBindVertexArray(linesArray);
+        int linesIndex = 0;
+        for(int i = 0; i < numOfLines*2; i = i + 2){   
+            shader.setVec3("color", lines[linesIndex].color);
+            glDrawArrays(GL_LINES, i, i + 2);
+            linesIndex++;
+        }
+
+        //Draw the points
         shader.setVec3("color",0.0f,1.0f,0.0f);
         glBindVertexArray(squaresArray);
-        glDrawArrays(GL_TRIANGLES, 0, numSquareVertices);
+        glDrawArrays(GL_TRIANGLES, 0, numSquareVertices/2);
+
+        glBindVertexArray(0);
         //Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-
+        usleep(200000);
+        tmp++;
     }
+
 
     glfwTerminate();
     return 0;
