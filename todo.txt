@@ -1,5 +1,12 @@
 TODO
 
-1. Make cpp program read from generated python scripts to fill arrays automatically
-2. Maybe add some more points
-3. Be able to specify line colors (change class?)
+3/24/24
+1. Make cpp program read from generated python scripts to fill arrays automatically DONE
+2. Maybe add some more points DONE
+3. Be able to specify line colors (change class?) DONE
+4. COMMENT COMMENT COMMENT!
+5. Start building Genetic Algorithm
+
+3/25/24
+1. Switch some things to private for memory saftey
+2. GA!
