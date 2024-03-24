@@ -12,7 +12,7 @@ def main():
         point_index = 0
         for row in csv_reader:
             point_name = generate_point_name(point_index)
-            point_data = f"Point('{point_name}', glm::vec2({row[0]}.0f, {row[1]}.0f)),\n"
+            point_data = f"{point_name.strip()},{row[0].strip()},{row[1].strip()},\n"
             txtfile.write(point_data)
             point_index += 1
 

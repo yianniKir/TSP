@@ -9,9 +9,11 @@
 #include <iostream>
 #include <string>
 
+#include <sstream>
+#include <iostream>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-
 
 const uint SCRWIDTH = 800;
 const uint SCRHEIGHT = 800;
@@ -94,6 +96,78 @@ Point FindInPointArr(char name, const Point* points, int numPoints) {
     return Point('\0', glm::vec2(0.0f, 0.0f));
 }
 
+const int countLines(const std::string path) {
+    std::ifstream fin;
+    fin.open(path);
+    if (!fin) {
+        std::cerr << "ERROR: INVALID PTH" << path << std::endl;
+        return -1;
+    }
+
+    int count = 0;
+    std::string line;
+    while (std::getline(fin, line)) {
+        ++count;
+    }
+
+    fin.close();
+    return count;
+}
+
+int loadLineNames(std::string lineNames[], std::string path){
+    std::ifstream fin;
+    fin.open(path);
+    if(!fin){
+        std::cerr << "ERROR: INVALID PATH" << std::endl;
+        return -1;
+    }
+    int index = 0;
+    std::string line;
+
+    while(getline(fin, line)){
+        std::stringstream ss(line);
+        std::string tmp;
+
+        getline(ss, tmp, ',');
+        lineNames[index] = tmp;
+        index++;
+    }
+    return 0;
+    fin.close();
+}
+
+int loadPointNames(Point points[], std::string path){
+    std::ifstream fin;
+    fin.open(path);
+    if(!fin){
+        std::cerr << "ERROR: INVALID PATH" << std::endl;
+        return -1;
+    }
+    int index = 0;
+    std::string line;
+
+    while(getline(fin, line)){
+        std::stringstream ss(line);
+        std::string tmp;
+
+        char name;
+        float xpos;
+        float ypos;
+
+        getline(ss, tmp, ',');
+        name = tmp[0];
+        getline(ss, tmp, ',');
+        xpos =  std::stof(tmp);
+        getline(ss, tmp, ',');
+        ypos =  std::stof(tmp);
+
+        points[index] = Point(name, glm::vec2(xpos, ypos));
+        index++;
+    
+    }
+    return 0;
+    fin.close();
+}
 
 int main()
 {
@@ -126,7 +200,8 @@ int main()
     shader.use();
     
     //Declare some general points
-    Point points[] = {
+    
+    /*Point points[] = {
         Point('A', glm::vec2(78.0f,  -481.0f)),
         Point('B', glm::vec2(744.0f,  -150.0f)),
         Point('C', glm::vec2(-279.0f,  -110.0f)),
@@ -134,38 +209,24 @@ int main()
         Point('E', glm::vec2(239.0f,  -250.0f)),
         Point('F', glm::vec2(-426.0f,  200.0f)),
         Point('G', glm::vec2(565.0f,  231.0f)),
-    };
-    const int numPoints = sizeof(points) / sizeof(points[0]);
+    };*/
+
+    const int numPoints = countLines("src/codeGens/points.txt");
+    Point points[numPoints];
+    if(loadPointNames(points, "src/codeGens/points.txt") == -1){
+        return -1;
+    }
+
     for(int i = 0; i < numPoints; i++){
         points[i].normalizePosition();
     }
 
-    //Declare lines
-    std::string lineNames[] = {
-        "AB",
-        "AC",
-        "AD",
-        "AE",
-        "AF",
-        "AG",
-        "BC",
-        "BD",
-        "BE",
-        "BF",
-        "BG",
-        "CD",
-        "CE",
-        "CF",
-        "CG",
-        "DE",
-        "DF",
-        "DG",
-        "EF",
-        "EG",
-        "FG",
-    };
-    
-    const int numOfLines = sizeof(lineNames) / sizeof(lineNames[0]);
+    const int numOfLines = countLines("src/codeGens/lines.txt");
+    std::string lineNames[numOfLines];
+    if(loadLineNames(lineNames, "src/codeGens/lines.txt") == -1){
+        return -1;
+    }
+
     Line lines[numOfLines];
 
     //Fill lines array (This is used for math)
@@ -230,7 +291,6 @@ int main()
 
         squareVertices[i + 10] = dummy.upright.x;
         squareVertices[i + 11] = dummy.upright.y;
-
     }
 
     uint squaresBuffer, squaresArray;

@@ -10,7 +10,7 @@ def generate_line_names(num_points):
 def write_line_names_to_file(line_names, output_file):
     with open(output_file, 'w') as file:
         for line_name in line_names:
-            file.write('"' + line_name + '"' + ',\n')
+            file.write(line_name + ',\n')
 
 def main():
     num_points = 7  # Number of points
