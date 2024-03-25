@@ -4,10 +4,6 @@
 
 #include "TSP.h"
 
-#include <fstream>
-
-
-
 class Shader
 {
 public:
