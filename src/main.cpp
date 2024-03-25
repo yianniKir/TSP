@@ -1,21 +1,5 @@
-#include "vendors/glad/glad.h"
-#include "vendors/GLFW/glfw3.h"
-
-#include "vendors/glm/glm.hpp"
-#include "vendors/glm/gtc/matrix_transform.hpp"
-#include "vendors/glm/gtc/type_ptr.hpp"
-
+#include "TSP.h"
 #include "shaderHeader.h"
-#include <iostream>
-#include <string>
-
-#include <unistd.h>
-#include <cmath>
-
-#include <algorithm>
-
-#include <sstream>
-#include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
