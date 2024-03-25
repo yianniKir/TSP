@@ -74,7 +74,7 @@ public:
     int chance = dis(gen);
 
     // If the chance is less than 10, perform mutation
-    if (chance < 50) {
+    if (chance < 40) {
         // Generate two random indices to swap
         std::uniform_int_distribution<> indexDis(0, permLen - 1);
         int index1 = indexDis(gen);
