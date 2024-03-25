@@ -155,18 +155,43 @@ int main()
 
     //write load solution function, specify colors for each line
     //solutionDraw strict with lineorder and linecolor
-    Solution sol("CBADEFGHKJI");
-    sol.genRandomPerm();
-    std::cout<< sol.getPerm() << std::endl;
-    //sol.isValid();
-    //This will need to be the first lineorder in solutiondraw (same number of lines for every solution)
-    const int solutionLineNum = sol.lineNum;
+    
+    //numofsolutions constant from tsp.h, currently 6
+    Solution solutions[numOfSolutions];
+    
+    //Line colors
 
-    std::string lineOrder[solutionLineNum];
+    //Generate initial solutions
+    for (int i = 0; i < numOfSolutions; ++i) {
+        solutions[i] = Solution("ABCDEFGHIJK");
+        solutions[i].genRandomPerm();
+        if(!solutions[i].isValid()){
+            std::cerr << "ERROR WHEN GENERATING INITIAL SOLUTIONS" << std::endl;
+        }
+    }
+    const int solutionLineNum = solutions[0].lineNum;
+    //Line num[x][y] where x is an int from 0 to numofsolutions, and y is an int that is the index of the line to color
+    std::string lineOrder[numOfSolutions][solutionLineNum];
+    //assign linecolor orders;
+    for(int i = 0; i < numOfSolutions; i++){
+        solutions[i].lineOrder(lineOrder[i], lineNames, numOfLines);
+    }
+    
+    //we will only draw the top 3 solutions, so only 3 colors are needed
+    glm::vec3 solutionColors[3] = {
+        glm::vec3(1.0f,0.749f,0.0f), //orange
+        glm::vec3(0.5f,1.0f,0.0f), //green
+        glm::vec3(0.0f,0.788f,1.0f) //cyan
+    };
+    
+    int idx = 0; // max numofsolutions
+    int idy = 0; //max solutionlinenum
+    bool newGeneration = true;
 
-    sol.lineOrder(lineOrder, lineNames, numOfLines);
+    int lowestFitness = 100000000;
+    int count = 0;
 
-    int ticker = 0;
+    Solution bestSolution;
 
     //Render loop
     while(!glfwWindowShouldClose(window))
@@ -187,14 +212,77 @@ int main()
         
         shader.use();
         
-        //USED FOR TESTING, CHANGING COLOR OF LINES
-        setLineColor(lineOrder[ticker], glm::vec3(0.0f,1.0f,0.0f), numOfLines, lines);
-        std::cout << lineOrder[ticker] << std::endl;
+        if(newGeneration == true){
+            //calculate fitness and rank
+            for(int i = 0; i < numOfSolutions; i++){
+                solutions[i].calcFitness(points);
+            }
+            std::sort(std::begin(solutions), std::end(solutions), compareSolutionsByFitness);
+
+            //select top 3 (will need to change later)
+            Solution top = solutions[0];
+            Solution mid = solutions[1];
+            Solution bot = solutions[2];
+
+            Solution c1 = cycleCrossover(top, mid);
+            Solution c2 = cycleCrossover(mid, bot);
+            Solution c3 = cycleCrossover(bot, top);
+
+            
+            //Filling lowest 3
+            solutions[3] = c1;
+            solutions[4] = c2;
+            solutions[5] = c3;
+
+            for(int i = 0; i < numOfSolutions; i++)
+                solutions[i].mutate();
+
+            if(solutions[0].fitness < lowestFitness){
+                lowestFitness = solutions[0].fitness;
+                bestSolution = solutions[0];
+                std::cout<< idx << ". " << lowestFitness << std::endl;
+                count = 0;
+            }else{
+                count++;
+            }
+
+            if(count > 1000){
+                std::cout <<"done" <<std::endl;
+                //glfwSetWindowShouldClose(window, true);
+                newGeneration = false;
+            }
+            /*std::cout << top.getPerm() << std::endl;
+            std::cout << mid.getPerm() << std::endl;
+            std::cout << bot.getPerm() << std::endl;
+            std::cout << "\n\n";
+            std::cout << c1.getPerm() << std::endl;
+            std::cout << c2.getPerm() << std::endl;
+            std::cout << c3.getPerm() << std::endl;
+            std::cout << std::endl;*/
+
+            //newGeneration = false;
+
+
+            //Redo drawing stuff at end (lineorder)
+        }
+
 
 
         // Draw the lines
         //This draws every line individually, it is a miracle it works the way it does honestly.
         //Since it draws every line individually, merely changing an element in lines[] color beforehand is all that is needed to change the color of a line
+        if(!newGeneration){
+            bestSolution.lineOrder(lineOrder[0], lineNames, numOfLines);
+            setLineColor(lineOrder[0][idy], solutionColors[0], numOfLines, lines);
+            if(idy < solutionLineNum - 1){
+                std::cout << lineOrder[0][idy] << std::endl;
+                idy++;
+                std::cout << "Best solution: " << bestSolution.getPerm() << ", " << bestSolution.fitness<<std::endl;
+                
+            }
+            usleep(500000);
+            
+        }
         glBindVertexArray(linesArray);
         int linesIndex = 0;
         for(int i = 0; i < numOfLines*2; i = i + 2){  
@@ -214,24 +302,20 @@ int main()
         //Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
-        ticker++;
-        if(ticker >= solutionLineNum){
-            std::cout << "NEW RUN" << std::endl;
-            std::cout<< sol.getPerm() << std::endl;
-            ticker = 0;
-            for(int i = 0; i < solutionLineNum; i++){
-                setLineColor(lineOrder[i], glm::vec3(1.0f,0.0f,0.0f), numOfLines, lines);
-            }
 
-            sol.genRandomPerm();
-            sol.lineOrder(lineOrder, lineNames, numOfLines);
-        }
+        //when done drawing, ie when idx and idy are good, newGeneration = true;
+        
+        //
+        idx++;
+
 
         //Delay(I NEED TO CHANGE THIS THIS IS NOT A GOOD WAY LMAOOOO)
-        usleep(300000);
+        //usleep(300000);
         
         
     }
+
+    
 
     
     glfwTerminate();

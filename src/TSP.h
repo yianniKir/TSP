@@ -22,6 +22,8 @@ const float PI = 3.14159265359f;
 const int SCRWIDTH = 800;
 const int SCRHEIGHT = 800;
 
+const int numOfSolutions = 6;
+
 bool compareStrings(const std::string& str1, const std::string& str2) {
     //Compare two strings irrespective of order AE = EA (true)
     std::string sortedStr1 = str1;
