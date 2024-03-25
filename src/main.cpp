@@ -6,6 +6,7 @@
 #include "line.h"
 #include "square.h"
 
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -155,8 +156,9 @@ int main()
     //write load solution function, specify colors for each line
     //solutionDraw strict with lineorder and linecolor
     Solution sol("CBADEFGHKJI");
-    std::cout<< sol.calcFitness(points) << std::endl;
-    sol.isValid();
+    sol.genRandomPerm();
+    std::cout<< sol.getPerm() << std::endl;
+    //sol.isValid();
     //This will need to be the first lineorder in solutiondraw (same number of lines for every solution)
     const int solutionLineNum = sol.lineNum;
 
@@ -168,7 +170,7 @@ int main()
 
     //Render loop
     while(!glfwWindowShouldClose(window))
-    {
+    {   
         //Get delta time for smoother performance across devices
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -182,7 +184,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 
-
+        
         shader.use();
         
         //USED FOR TESTING, CHANGING COLOR OF LINES
@@ -215,13 +217,20 @@ int main()
         ticker++;
         if(ticker >= solutionLineNum){
             std::cout << "NEW RUN" << std::endl;
+            std::cout<< sol.getPerm() << std::endl;
             ticker = 0;
             for(int i = 0; i < solutionLineNum; i++){
                 setLineColor(lineOrder[i], glm::vec3(1.0f,0.0f,0.0f), numOfLines, lines);
             }
+
+            sol.genRandomPerm();
+            sol.lineOrder(lineOrder, lineNames, numOfLines);
         }
+
         //Delay(I NEED TO CHANGE THIS THIS IS NOT A GOOD WAY LMAOOOO)
-        usleep(600000);
+        usleep(300000);
+        
+        
     }
 
     

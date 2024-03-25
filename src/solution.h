@@ -24,7 +24,7 @@ public:
         for(int i = 0; i < permLen - 1; i++){
             Point p1 = findPoint(perm[i], points, permLen);
             Point p2 = findPoint(perm[i+1], points, permLen);
-            
+        
             fitness += distBtwPoints(p1, p2);            
         }
 
@@ -58,6 +58,18 @@ public:
                 }
             }
         }
+    }
+
+    void genRandomPerm(){
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        std::shuffle(perm.begin(), perm.end(), gen);
+    }
+
+    //For debugging
+    std::string getPerm(){
+        return perm;
     }
 
 private:
