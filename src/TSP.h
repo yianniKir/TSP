@@ -22,6 +22,11 @@ const float PI = 3.14159265359f;
 const int SCRWIDTH = 800;
 const int SCRHEIGHT = 800;
 
+const std::string PERM = "ABCDEFGHIJK";
+const int PERMLEN = -('A' - 'K');
+const char PERMSTART = 'A';
+const char PERMEND = 'K';
+
 const int numOfSolutions = 6;
 
 bool compareStrings(const std::string& str1, const std::string& str2) {

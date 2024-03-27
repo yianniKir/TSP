@@ -11,7 +11,7 @@ class Solution{
 public:
     float fitness;
     std::string perm;
-    int lineNum;
+    
     Solution() {}
     Solution(std::string perm) : perm(perm){
         //Solution only needs a string, which is a permutation of the solution
@@ -35,7 +35,7 @@ public:
         int idealSum = 0;
         int realSum = 0;
         char currentChar = 'A';
-        while (currentChar <= 'A' + lineNum) {
+        while (currentChar <= 'A' + getLineNum()) {
             idealSum += currentChar;
             currentChar++; 
         }
@@ -49,18 +49,21 @@ public:
         //Writes to order[] by reference, used to fill order with the lines that should be colored using setLineColor() (irrespective of case)
         //debug
         //std::cout << perm << std::endl;
-        for(int i = 0; i < lineNum; i++){
+        std::cout << getLineNum() << std::endl;
+        for(int i = 0; i < getLineNum() + 2; i++){
             std::string name = std::string(1, perm[i]) + std::string(1, perm[i+1]);
-            
+            //std::cout << name << '\t';
             for(int j = 0; j < numLineNames; j++){
                 if (compareStrings(name, lineNames[j])){
                     std::sort(name.begin(), name.end());
                     order[i] = name;
+                    //std::cout << order[i] << ", ";
 
                     //debug
                     //std::cout << order[i] << ", ";
                 }
             }
+            //std::cout << std::endl;
             //debug
             //std::cout << std::endl;
         }
@@ -76,7 +79,7 @@ public:
     // If the chance is less than 10, perform mutation
     if (chance < 40) {
         // Generate two random indices to swap
-        std::uniform_int_distribution<> indexDis(0, permLen - 1);
+        std::uniform_int_distribution<> indexDis(1, permLen - 2);
         int index1 = indexDis(gen);
         int index2 = indexDis(gen);
 
@@ -93,7 +96,7 @@ public:
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        std::shuffle(perm.begin(), perm.end(), gen);
+        std::shuffle(perm.begin() + 1, perm.end() - 1, gen);
     }
 
     //For debugging
@@ -101,9 +104,13 @@ public:
         return perm;
     }
 
+    int getLineNum(){
+        return lineNum;
+    }
+
 private:
     int permLen;
-    
+    int lineNum;
     glm::vec3 color;
 
     //finds and returns a point given its name, specific for permutation
@@ -126,23 +133,29 @@ bool compareSolutionsByFitness(Solution &sol1, Solution &sol2) {
     return sol1.fitness < sol2.fitness;
 }
 
-Solution cycleCrossover(Solution sol1, Solution sol2){
-    Solution child("ABCDEFGHIJK");
+//this method sucks, it must change
+Solution cycleCrossover(Solution& sol1, Solution& sol2){
+    Solution child("BCDEFGHIJ");
+    //1 to permlen - 1
+    Solution p1(sol1.getPerm().substr(1,sol1.getLineNum()));
+    Solution p2(sol2.getPerm().substr(1,sol2.getLineNum()));
+
     //start with first element in sol1, let this be char1
     //Find the char1 in sol2, let this be idx1
     //sol1[idx1] is the new element
     int sol2index = 0;
-    for(int i = 0; i < sol1.lineNum + 1; i++){
-        char c1 = sol1.perm[i];
+    for(int i = 0; i < p1.getLineNum() + 1; i++){
+        char c1 = p1.perm[i];
 
-        for(int j = 0; j < sol2.lineNum + 1; j++){
-            if (c1 == sol2.perm[j]){
+        for(int j = 0; j < p2.getLineNum() + 1; j++){
+            if (c1 == p2.perm[j]){
                 sol2index = j;
             }
         }
 
-        child.perm[i] = sol1.perm[sol2index];
+        child.perm[i] = p1.perm[sol2index];
     }
+    child.perm = PERMSTART + child.perm + PERMEND;
     return child;
 }
 

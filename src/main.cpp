@@ -62,6 +62,7 @@ int main()
 
     //Load lines
     const int numOfLines = countLines("src/codeGens/lines.txt");
+    
     std::string lineNames[numOfLines];
     if(loadLineNames(lineNames, "src/codeGens/lines.txt") == -1){
         return -1;
@@ -72,7 +73,7 @@ int main()
     for(int i = 0; i < numOfLines; i++){
         Point startPoint = FindInPointArr(lineNames[i].c_str()[0], points, numPoints);
         Point endPoint = FindInPointArr(lineNames[i].c_str()[1], points, numPoints);
-  
+        
         lines[i] = Line(lineNames[i], startPoint, endPoint, glm::vec3(1.0f, 0.0f, 0.0f));
         //lines[i].debug();
     }
@@ -163,19 +164,19 @@ int main()
 
     //Generate initial solutions
     for (int i = 0; i < numOfSolutions; ++i) {
-        solutions[i] = Solution("ABCDEFGHIJK");
+        solutions[i] = Solution(PERM);
         solutions[i].genRandomPerm();
         if(!solutions[i].isValid()){
             std::cerr << "ERROR WHEN GENERATING INITIAL SOLUTIONS" << std::endl;
         }
     }
-    const int solutionLineNum = solutions[0].lineNum;
+    const int solutionLineNum = solutions[0].getLineNum();
     //Line num[x][y] where x is an int from 0 to numofsolutions, and y is an int that is the index of the line to color
     std::string lineOrder[numOfSolutions][solutionLineNum];
     //assign linecolor orders;
-    for(int i = 0; i < numOfSolutions; i++){
+    /*for(int i = 0; i < numOfSolutions; i++){
         solutions[i].lineOrder(lineOrder[i], lineNames, numOfLines);
-    }
+    }*/
     
     //we will only draw the top 3 solutions, so only 3 colors are needed
     glm::vec3 solutionColors[3] = {
@@ -191,7 +192,9 @@ int main()
     int lowestFitness = 100000000;
     int count = 0;
 
-    Solution bestSolution;
+    int loopVar = 0;
+
+    Solution bestSolution("ABCDEFGHIJK");
 
     //Render loop
     while(!glfwWindowShouldClose(window))
@@ -211,6 +214,7 @@ int main()
 
         
         shader.use();
+        
         
         if(newGeneration == true){
             //calculate fitness and rank
@@ -246,7 +250,7 @@ int main()
                 count++;
             }
 
-            if(count > 1000){
+            if(count > 500){
                 std::cout <<"done" <<std::endl;
                 //glfwSetWindowShouldClose(window, true);
                 newGeneration = false;
@@ -262,27 +266,33 @@ int main()
 
             //newGeneration = false;
 
-
             //Redo drawing stuff at end (lineorder)
+        
         }
+        
 
 
 
         // Draw the lines
         //This draws every line individually, it is a miracle it works the way it does honestly.
         //Since it draws every line individually, merely changing an element in lines[] color beforehand is all that is needed to change the color of a line
-        if(!newGeneration){
-            bestSolution.lineOrder(lineOrder[0], lineNames, numOfLines);
+       if(!newGeneration){
+            if(idy == 0){
+                std::cout << bestSolution.perm << std::endl;
+                bestSolution.lineOrder(lineOrder[0], lineNames, numOfLines);
+            }
             setLineColor(lineOrder[0][idy], solutionColors[0], numOfLines, lines);
             if(idy < solutionLineNum - 1){
                 std::cout << lineOrder[0][idy] << std::endl;
                 idy++;
                 std::cout << "Best solution: " << bestSolution.getPerm() << ", " << bestSolution.fitness<<std::endl;
                 
+                
             }
             usleep(500000);
             
         }
+
         glBindVertexArray(linesArray);
         int linesIndex = 0;
         for(int i = 0; i < numOfLines*2; i = i + 2){  
@@ -307,6 +317,7 @@ int main()
         
         //
         idx++;
+        loopVar++;
 
 
         //Delay(I NEED TO CHANGE THIS THIS IS NOT A GOOD WAY LMAOOOO)
